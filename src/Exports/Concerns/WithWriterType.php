@@ -7,25 +7,31 @@ use Maatwebsite\Excel\Excel;
 
 trait WithWriterType
 {
-    protected Closure|string|null $writerType = null;
+    /**
+     * Holds the user-supplied writer type, which may be a closure resolved at export time.
+     *
+     * Kept separate from Maatwebsite\Excel\Concerns\Exportable::$writerType (typed ?string),
+     * because PHP forbids composed traits declaring the same property with incompatible types.
+     */
+    protected Closure|string|null $writerTypeCallback = null;
 
     public function withWriterType(Closure|string|null $writerType = null): static
     {
-        $this->writerType = $writerType;
+        $this->writerTypeCallback = $writerType;
 
         return $this;
     }
 
     protected function getWriterType(): ?string
     {
-        return $this->evaluate($this->writerType) ?? Excel::XLSX;
+        return $this->evaluate($this->writerTypeCallback) ?? Excel::XLSX;
     }
 
     protected function resolveWriterType(): void
     {
         if ($writerType = data_get($this->formData, 'writer_type')) {
-            if ($this->writerType instanceof Closure) {
-                $writerType = $this->evaluate($this->writerType, ['writerType' => $writerType]);
+            if ($this->writerTypeCallback instanceof Closure) {
+                $writerType = $this->evaluate($this->writerTypeCallback, ['writerType' => $writerType]);
             }
 
             $this->withWriterType($writerType);

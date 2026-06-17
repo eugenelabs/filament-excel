@@ -48,7 +48,8 @@ trait CanQueue
         $this->headings = $this->getHeadings();
 
         $this->filename = $this->getFilename();
-        $this->writerType = $this->getWriterType();
+        // Resolve any closure to a concrete string so the queued export serialises cleanly.
+        $this->writerTypeCallback = $this->getWriterType();
         $this->columnFormats = $this->getColumnFormats();
         $this->columnWidths = $this->getColumnWidths();
         $this->csvSettings = $this->getCsvSettings();
